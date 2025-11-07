@@ -1,6 +1,6 @@
 'use client';
 
-import { TaskItem } from '../task-item';
+import { TaskItem } from '@/components/task-item';
 import { useTasks } from '@/store';
 
 export const ItemContainer = () => {

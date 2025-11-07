@@ -8,7 +8,7 @@ import {
 	ItemFooter,
 	ItemTitle,
 } from '@/components/ui/item';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
 type TaskItemProps = {
 	id: string;

@@ -1,3 +1,5 @@
+'use client';
+
 import { ItemContainer } from '@/components/item-container';
 import { TaskCreator } from '@/components/task-creator';
 
