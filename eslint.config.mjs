@@ -6,6 +6,7 @@ import tseslint from 'typescript-eslint';
 import security from 'eslint-plugin-security';
 import sonarjs from 'eslint-plugin-sonarjs';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import importPlugin from 'eslint-plugin-import';
 
 const tsconfigRootDir = fileURLToPath(new URL('.', import.meta.url));
 
@@ -28,6 +29,15 @@ const eslintConfig = defineConfig([
 	...nextVitals,
 	...nextTs,
 	...typeCheckedConfigs,
+	{
+		plugins: {
+			import: importPlugin,
+		},
+		rules: {
+			...(importPlugin.configs?.recommended?.rules ?? {}),
+			...(importPlugin.configs?.typescript?.rules ?? {}),
+		},
+	},
 	{
 		settings: {
 			'import/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'],
