@@ -30,9 +30,6 @@ const eslintConfig = defineConfig([
 	...nextTs,
 	...typeCheckedConfigs,
 	{
-		plugins: {
-			import: importPlugin,
-		},
 		rules: {
 			...(importPlugin.configs?.recommended?.rules ?? {}),
 			...(importPlugin.configs?.typescript?.rules ?? {}),
