@@ -15,8 +15,8 @@ type TaskItemProps = {
 	title: string;
 	description: string;
 	deadline: Date;
-	onComplete: () => void;
-	onDelete: () => void;
+	onComplete: (id: string) => void;
+	onDelete: (id: string) => void;
 };
 
 export const TaskItem = ({
@@ -34,10 +34,10 @@ export const TaskItem = ({
 				<ItemDescription>{description}</ItemDescription>
 			</ItemContent>
 			<ItemActions>
-				<Button variant='outline' onClick={onComplete}>
+				<Button variant='outline' onClick={() => onComplete(id)}>
 					Complete
 				</Button>
-				<Button variant='outline' onClick={onDelete}>
+				<Button variant='outline' onClick={() => onDelete(id)}>
 					Delete
 				</Button>
 			</ItemActions>

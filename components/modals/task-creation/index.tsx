@@ -56,7 +56,7 @@ export const TaskCreationModal = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<form onSubmit={handleSubmit}>
+			<form id='task-creation-form' onSubmit={handleSubmit}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Create Task</DialogTitle>
@@ -90,7 +90,9 @@ export const TaskCreationModal = ({
 								Cancel
 							</Button>
 						</DialogClose>
-						<Button type='submit'>Create</Button>
+						<Button type='submit' form='task-creation-form'>
+							Create
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</form>
