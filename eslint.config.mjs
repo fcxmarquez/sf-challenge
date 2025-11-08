@@ -25,16 +25,25 @@ const typeCheckedConfigs = tseslint.configs.recommendedTypeChecked.map(
 	})
 );
 
-const eslintConfig = defineConfig([
-	...nextVitals,
-	...nextTs,
-	...typeCheckedConfigs,
-	{
+const nextWithImportRules = nextVitals.map((config) => {
+	if ((config?.name ?? '') !== 'next') {
+		return config;
+	}
+
+	return {
+		...config,
 		rules: {
+			...(config.rules ?? {}),
 			...(importPlugin.configs?.recommended?.rules ?? {}),
 			...(importPlugin.configs?.typescript?.rules ?? {}),
 		},
-	},
+	};
+});
+
+const eslintConfig = defineConfig([
+	...nextWithImportRules,
+	...nextTs,
+	...typeCheckedConfigs,
 	{
 		settings: {
 			'import/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs'],
@@ -47,6 +56,18 @@ const eslintConfig = defineConfig([
 	},
 	security.configs.recommended,
 	sonarjs.configs.recommended,
+	{
+		rules: {
+			'sonarjs/function-return-type': 'off',
+		},
+	},
+	{
+		files: ['eslint.config.{js,cjs,mjs}'],
+		rules: {
+			'import/no-unresolved': 'off',
+			'import/no-named-as-default-member': 'off',
+		},
+	},
 	eslintConfigPrettier,
 	globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
 ]);
