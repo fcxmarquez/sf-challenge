@@ -30,7 +30,8 @@ export const TaskCreationModal = ({
 	onOpenChange,
 }: TaskCreationModalProps) => {
 	const { createTask } = useTasksActions();
-	const [formData, setFormData] = useState<{ description: string }>({
+	const [formData, setFormData] = useState<{ title: string; description: string }>({
+		title: '',
 		description: '',
 	});
 
@@ -42,7 +43,7 @@ export const TaskCreationModal = ({
 		e.preventDefault();
 		createTask({
 			id: crypto.randomUUID(),
-			title: 'New Task',
+			title: formData.title,
 			description: formData.description,
 			deadline: new Date(new Date().setDate(new Date().getDate() + 7)),
 			isCompleted: false,
@@ -66,6 +67,22 @@ export const TaskCreationModal = ({
 					</DialogHeader>
 					<FieldSet>
 						<FieldGroup>
+							<Field>
+								<FieldContent>
+									<FieldLabel htmlFor='title'>Title</FieldLabel>
+									<FieldDescription>
+										What is the title of the task you want to create?
+									</FieldDescription>
+								</FieldContent>
+								<Input
+									id='title'
+									type='text'
+									placeholder='Task title'
+									name='title'
+									value={formData.title}
+									onChange={handleChange}
+								/>
+							</Field>
 							<Field>
 								<FieldContent>
 									<FieldLabel htmlFor='description'>Description</FieldLabel>
