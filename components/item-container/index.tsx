@@ -5,7 +5,7 @@ import { useTasks, useTasksActions } from '@/store';
 
 export const ItemContainer = () => {
 	const tasks = useTasks();
-	const { completeTask, deleteTask } = useTasksActions();
+	const { completeTask, deleteTask, undoCompleteTask } = useTasksActions();
 
 	const handleCompleteTask = (id: string) => {
 		completeTask(id);
@@ -13,6 +13,10 @@ export const ItemContainer = () => {
 
 	const handleDeleteTask = (id: string) => {
 		deleteTask(id);
+	};
+
+	const handleUndoCompleteTask = (id: string) => {
+		undoCompleteTask(id);
 	};
 
 	const orderedTasks = tasks.toSorted(
@@ -28,8 +32,10 @@ export const ItemContainer = () => {
 					title={task.title}
 					description={task.description}
 					deadline={task.deadline}
+					isCompleted={task.isCompleted}
 					onComplete={handleCompleteTask}
 					onDelete={handleDeleteTask}
+					onUndoComplete={handleUndoCompleteTask}
 				/>
 			))}
 		</div>

@@ -15,8 +15,10 @@ type TaskItemProps = {
 	title: string;
 	description: string;
 	deadline: Date;
+	isCompleted: boolean;
 	onComplete: (id: string) => void;
 	onDelete: (id: string) => void;
+	onUndoComplete: (id: string) => void;
 };
 
 export const TaskItem = ({
@@ -24,18 +26,20 @@ export const TaskItem = ({
 	title,
 	description,
 	deadline,
+	isCompleted,
 	onComplete,
 	onDelete,
+	onUndoComplete,
 }: TaskItemProps) => {
 	return (
-		<Item variant='outline' key={id}>
+		<Item variant={isCompleted ? 'muted' : 'outline'} key={id}>
 			<ItemContent>
 				<ItemTitle>{title}</ItemTitle>
 				<ItemDescription>{description}</ItemDescription>
 			</ItemContent>
 			<ItemActions>
-				<Button variant='outline' onClick={() => onComplete(id)}>
-					Complete
+				<Button variant='outline' onClick={() => isCompleted ? onUndoComplete(id) : onComplete(id)}>
+					{isCompleted ? 'Undo' : 'Complete'}
 				</Button>
 				<Button variant='outline' onClick={() => onDelete(id)}>
 					Delete

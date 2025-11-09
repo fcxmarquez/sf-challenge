@@ -15,6 +15,7 @@ export interface TaskSlice {
 	createTask: (task: Task) => void;
 	deleteTask: (id: string) => void;
 	completeTask: (id: string) => void;
+	undoCompleteTask: (id: string) => void;
 }
 
 export type StoreState = TaskSlice;

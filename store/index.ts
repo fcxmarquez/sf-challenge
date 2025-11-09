@@ -40,10 +40,12 @@ export const useTasksActions = () => {
 	const createTask = useStore((state) => state.createTask);
 	const deleteTask = useStore((state) => state.deleteTask);
 	const completeTask = useStore((state) => state.completeTask);
+	const undoCompleteTask = useStore((state) => state.undoCompleteTask);
 
 	return {
 		createTask,
 		deleteTask,
 		completeTask,
+		undoCompleteTask,
 	};
 };

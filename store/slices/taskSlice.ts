@@ -58,4 +58,14 @@ export const createTaskSlice: StateCreator<
 				tasks: newTasks,
 			};
 		}),
+
+	undoCompleteTask: (id: string) =>
+		set((state) => {
+			const newTasks = state.tasks.map((task) =>
+				task.id === id ? { ...task, isCompleted: false } : task
+			);
+			return {
+				tasks: newTasks,
+			};
+		}),
 });
