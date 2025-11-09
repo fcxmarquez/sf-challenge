@@ -1,6 +1,6 @@
 'use client';
 
-import { ItemContainer } from '@/components/item-container';
+import { TaskContainer } from '@/components/task-container';
 import { TaskCreator } from '@/components/task-creator';
 import { useState } from 'react';
 import { TaskCreationModal } from '@/components/modals/task-creation';
@@ -23,7 +23,7 @@ export default function Home() {
 					<h2 className='font-bold text-center'>Tasks</h2>
 				</div>
 				<TaskCreator onCreate={handleCreateTask} />
-				<ItemContainer />
+				<TaskContainer />
 			</div>
 		</>
 	);

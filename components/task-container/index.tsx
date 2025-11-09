@@ -1,35 +1,50 @@
 'use client';
 
+import { useCallback, useMemo } from 'react';
+
 import { TaskItem } from '@/components/task-item';
 import { useTasks, useTasksActions } from '@/store';
 
-export const ItemContainer = () => {
+export const TaskContainer = () => {
 	const tasks = useTasks();
 	const { completeTask, deleteTask, undoCompleteTask } = useTasksActions();
 
-	const handleCompleteTask = (id: string) => {
-		completeTask(id);
-	};
+	const handleCompleteTask = useCallback(
+		(id: string) => {
+			completeTask(id);
+		},
+		[completeTask]
+	);
 
-	const handleDeleteTask = (id: string) => {
-		deleteTask(id);
-	};
+	const handleDeleteTask = useCallback(
+		(id: string) => {
+			deleteTask(id);
+		},
+		[deleteTask]
+	);
 
-	const handleUndoCompleteTask = (id: string) => {
-		undoCompleteTask(id);
-	};
+	const handleUndoCompleteTask = useCallback(
+		(id: string) => {
+			undoCompleteTask(id);
+		},
+		[undoCompleteTask]
+	);
 
-	const handleEditTask = (id: string) => {
+	const handleEditTask = useCallback((id: string) => {
 		console.log('edit task', id);
-	};
+	}, []);
 
-	const orderedTasks = tasks
-		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-		.toSorted((a, b) => {
-			if (a.isCompleted && !b.isCompleted) return 1;
-			if (!a.isCompleted && b.isCompleted) return -1;
-			return 0;
-		});
+	const orderedTasks = useMemo(
+		() =>
+			tasks
+				.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+				.toSorted((a, b) => {
+					if (a.isCompleted && !b.isCompleted) return 1;
+					if (!a.isCompleted && b.isCompleted) return -1;
+					return 0;
+				}),
+		[tasks]
+	);
 
 	if (orderedTasks.length === 0) {
 		return (
