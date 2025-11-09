@@ -9,6 +9,7 @@ import {
 	ItemTitle,
 } from '@/components/ui/item';
 import { Button } from '@/components/ui/button';
+import { PencilIcon, TrashIcon } from 'lucide-react';
 
 type TaskItemProps = {
 	id: string;
@@ -19,6 +20,7 @@ type TaskItemProps = {
 	onComplete: (id: string) => void;
 	onDelete: (id: string) => void;
 	onUndoComplete: (id: string) => void;
+	onEdit: (id: string) => void;
 };
 
 export const TaskItem = ({
@@ -28,6 +30,7 @@ export const TaskItem = ({
 	deadline,
 	isCompleted,
 	onComplete,
+	onEdit,
 	onDelete,
 	onUndoComplete,
 }: TaskItemProps) => {
@@ -38,11 +41,17 @@ export const TaskItem = ({
 				<ItemDescription>{description}</ItemDescription>
 			</ItemContent>
 			<ItemActions>
-				<Button variant='outline' onClick={() => isCompleted ? onUndoComplete(id) : onComplete(id)}>
+				<Button
+					variant='outline'
+					onClick={() => (isCompleted ? onUndoComplete(id) : onComplete(id))}
+				>
 					{isCompleted ? 'Undo' : 'Complete'}
 				</Button>
-				<Button variant='outline' onClick={() => onDelete(id)}>
-					Delete
+				<Button variant='outline' size='icon' onClick={() => onEdit(id)}>
+					<PencilIcon className='size-4' />
+				</Button>
+				<Button variant='destructive' size='icon' onClick={() => onDelete(id)}>
+					<TrashIcon className='size-4' />
 				</Button>
 			</ItemActions>
 			<ItemFooter>Deadline: {deadline.toLocaleDateString()}</ItemFooter>

@@ -19,9 +19,25 @@ export const ItemContainer = () => {
 		undoCompleteTask(id);
 	};
 
-	const orderedTasks = tasks.toSorted(
-		(a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-	);
+	const handleEditTask = (id: string) => {
+		console.log('edit task', id);
+	};
+
+	const orderedTasks = tasks
+		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+		.toSorted((a, b) => {
+			if (a.isCompleted && !b.isCompleted) return 1;
+			if (!a.isCompleted && b.isCompleted) return -1;
+			return 0;
+		});
+
+	if (orderedTasks.length === 0) {
+		return (
+			<div className='flex flex-col gap-4 w-full'>
+				<p className='text-center text-bold'>No tasks yet! Keep going!</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className='flex flex-col gap-4 w-full'>
@@ -34,6 +50,7 @@ export const ItemContainer = () => {
 					deadline={task.deadline}
 					isCompleted={task.isCompleted}
 					onComplete={handleCompleteTask}
+					onEdit={handleEditTask}
 					onDelete={handleDeleteTask}
 					onUndoComplete={handleUndoCompleteTask}
 				/>

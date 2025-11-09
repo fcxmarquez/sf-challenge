@@ -5,36 +5,13 @@ import { StoreState, Task, TaskSlice } from '../types';
 // eslint-disable-next-line sonarjs/unused-import, @typescript-eslint/no-unused-vars
 import { devtools } from 'zustand/middleware';
 
-const initialTasks: Task[] = [
-	{
-		id: '1',
-		title: 'Task 1',
-		description: 'Task 1 description',
-		deadline: new Date(),
-		isCompleted: false,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		completedAt: null,
-	},
-	{
-		id: '2',
-		title: 'Task 2',
-		description: 'Task 2 description',
-		deadline: new Date(),
-		isCompleted: false,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-		completedAt: null,
-	},
-];
-
 export const createTaskSlice: StateCreator<
 	StoreState,
 	[['zustand/devtools', never]],
 	[],
 	TaskSlice
 > = (set) => ({
-	tasks: initialTasks,
+	tasks: [] as Task[],
 
 	createTask: (task: Task) =>
 		set((state) => ({
