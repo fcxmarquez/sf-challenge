@@ -16,9 +16,16 @@ import {
 	FieldContent,
 	FieldDescription,
 } from '@/components/ui/field';
+import {
+	Popover,
+	PopoverTrigger,
+	PopoverContent,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useTasksActions } from '@/store';
+import { ChevronDownIcon } from 'lucide-react';
 
 export type TaskCreationModalProps = {
 	open: boolean;
@@ -30,10 +37,16 @@ export const TaskCreationModal = ({
 	onOpenChange,
 }: TaskCreationModalProps) => {
 	const { createTask } = useTasksActions();
-	const [formData, setFormData] = useState<{ title: string; description: string }>({
+	const [formData, setFormData] = useState<{
+		title: string;
+		description: string;
+		deadline: Date;
+	}>({
 		title: '',
 		description: '',
+		deadline: new Date(),
 	});
+	const [openCalendar, setOpenCalendar] = useState(false);
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,7 +58,7 @@ export const TaskCreationModal = ({
 			id: crypto.randomUUID(),
 			title: formData.title,
 			description: formData.description,
-			deadline: new Date(new Date().setDate(new Date().getDate() + 7)),
+			deadline: formData.deadline,
 			isCompleted: false,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -98,6 +111,46 @@ export const TaskCreationModal = ({
 									value={formData.description}
 									onChange={handleChange}
 								/>
+							</Field>
+							<Field>
+								<FieldContent>
+									<FieldLabel htmlFor='deadline'>Deadline</FieldLabel>
+									<FieldDescription>
+										When is the deadline for the task?
+									</FieldDescription>
+								</FieldContent>
+								<Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+									<PopoverTrigger asChild>
+										<Button
+											variant='outline'
+											id='deadline'
+											className='w-48 justify-between font-normal'
+										>
+											{formData.deadline
+												? formData.deadline.toLocaleDateString()
+												: 'Select date'}
+											<ChevronDownIcon />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent
+										className='w-auto overflow-hidden p-0'
+										align='start'
+									>
+										<Calendar
+											mode='single'
+											selected={formData.deadline}
+											captionLayout='dropdown'
+											disabled={{ before: new Date() }}
+											onSelect={(date) => {
+												setFormData({
+													...formData,
+													deadline: date ?? new Date(),
+												});
+												setOpenCalendar(false);
+											}}
+										/>
+									</PopoverContent>
+								</Popover>
 							</Field>
 						</FieldGroup>
 					</FieldSet>
