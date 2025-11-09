@@ -12,6 +12,12 @@ export const createTaskSlice: StateCreator<
 	TaskSlice
 > = (set) => ({
 	tasks: [] as Task[],
+	taskFilter: 'all',
+
+	setTaskFilter: (filter: 'all' | 'completed' | 'pending') =>
+		set(() => ({
+			taskFilter: filter,
+		})),
 
 	createTask: (task: Task) =>
 		set((state) => ({

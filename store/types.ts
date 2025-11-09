@@ -11,7 +11,9 @@ export interface Task {
 
 export interface TaskSlice {
 	tasks: Task[];
+	taskFilter: 'all' | 'completed' | 'pending';
 
+	setTaskFilter: (filter: 'all' | 'completed' | 'pending') => void;
 	createTask: (task: Task) => void;
 	deleteTask: (id: string) => void;
 	completeTask: (id: string) => void;

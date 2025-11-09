@@ -35,17 +35,22 @@ export const useStore = create<StoreState>()(
 
 // selector hooks
 export const useTasks = () => useStore((state) => state.tasks);
+export const useTaskFilter = () => useStore((state) => state.taskFilter);
+
+console.log('state', useStore.getState());
 
 export const useTasksActions = () => {
 	const createTask = useStore((state) => state.createTask);
 	const deleteTask = useStore((state) => state.deleteTask);
 	const completeTask = useStore((state) => state.completeTask);
 	const undoCompleteTask = useStore((state) => state.undoCompleteTask);
+	const setTaskFilter = useStore((state) => state.setTaskFilter);
 
 	return {
 		createTask,
 		deleteTask,
 		completeTask,
 		undoCompleteTask,
+		setTaskFilter,
 	};
 };
