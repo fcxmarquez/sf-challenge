@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { TaskItem } from '@/components/task-item';
-import { useTasks, useTasksActions } from '@/store';
+import { useTaskFilter, useTasks, useTasksActions } from '@/store';
 
 export const TaskContainer = () => {
 	const tasks = useTasks();
+	const taskFilter = useTaskFilter();
 	const { completeTask, deleteTask, undoCompleteTask } = useTasksActions();
 
 	const handleCompleteTask = useCallback(
@@ -34,19 +35,22 @@ export const TaskContainer = () => {
 		console.log('edit task', id);
 	}, []);
 
-	const orderedTasks = useMemo(
-		() =>
-			tasks
-				.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-				.toSorted((a, b) => {
-					if (a.isCompleted && !b.isCompleted) return 1;
-					if (!a.isCompleted && b.isCompleted) return -1;
-					return 0;
-				}),
-		[tasks]
-	);
+	const orderedTasks = tasks
+		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+		.toSorted((a, b) => {
+			if (a.isCompleted && !b.isCompleted) return 1;
+			if (!a.isCompleted && b.isCompleted) return -1;
+			return 0;
+		});
 
-	if (orderedTasks.length === 0) {
+	const filteredTasks = orderedTasks.filter((task) => {
+		if (taskFilter === 'all') return true;
+		if (taskFilter === 'completed') return task.isCompleted;
+		if (taskFilter === 'pending') return !task.isCompleted;
+		return false;
+	});
+
+	if (filteredTasks.length === 0) {
 		return (
 			<div className='flex flex-col gap-4 w-full'>
 				<p className='text-center text-bold'>No tasks yet! Keep going!</p>
@@ -56,7 +60,7 @@ export const TaskContainer = () => {
 
 	return (
 		<div className='flex flex-col gap-4 w-full'>
-			{orderedTasks.map((task) => (
+			{filteredTasks.map((task) => (
 				<TaskItem
 					key={task.id}
 					id={task.id}
