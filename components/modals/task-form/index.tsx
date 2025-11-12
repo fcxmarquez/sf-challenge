@@ -27,7 +27,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { ChevronDownIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -110,6 +110,13 @@ export const TaskFormModal = ({
 		description: fieldCopy?.description ?? defaultFieldCopy.description,
 		deadline: fieldCopy?.deadline ?? defaultFieldCopy.deadline,
 	};
+	const instanceId = useId();
+	const formId = `task-form-modal-${instanceId}`;
+	const titleInputId = `${formId}-title`;
+	const descriptionInputId = `${formId}-description`;
+	const deadlineInputId = `${formId}-deadline`;
+	const deadlineTimeInputId = `${formId}-deadline-time`;
+  
 	const form = useForm<TaskFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues,
@@ -137,7 +144,7 @@ export const TaskFormModal = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<form id='task-form-modal' onSubmit={form.handleSubmit(handleSubmit)}>
+			<form id={formId} onSubmit={form.handleSubmit(handleSubmit)}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>{dialogTitle}</DialogTitle>
@@ -151,12 +158,12 @@ export const TaskFormModal = ({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldContent>
-											<FieldLabel htmlFor='task-form-title'>Title</FieldLabel>
+											<FieldLabel htmlFor={titleInputId}>Title</FieldLabel>
 											<FieldDescription>{fieldText.title}</FieldDescription>
 										</FieldContent>
 										<Input
 											{...field}
-											id='task-form-title'
+											id={titleInputId}
 											type='text'
 											placeholder='Task title'
 										/>
@@ -173,7 +180,7 @@ export const TaskFormModal = ({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldContent>
-											<FieldLabel htmlFor='task-form-description'>
+											<FieldLabel htmlFor={descriptionInputId}>
 												Description
 											</FieldLabel>
 											<FieldDescription>
@@ -182,7 +189,7 @@ export const TaskFormModal = ({
 										</FieldContent>
 										<Input
 											{...field}
-											id='task-form-description'
+											id={descriptionInputId}
 											type='text'
 											placeholder='Task description'
 										/>
@@ -206,7 +213,7 @@ export const TaskFormModal = ({
 											}
 										>
 											<FieldContent>
-												<FieldLabel htmlFor='task-form-deadline'>
+												<FieldLabel htmlFor={deadlineInputId}>
 													Deadline
 												</FieldLabel>
 												<FieldDescription>
@@ -221,7 +228,7 @@ export const TaskFormModal = ({
 													<PopoverTrigger asChild>
 														<Button
 															variant='outline'
-															id='task-form-deadline'
+															id={deadlineInputId}
 															className='w-48 justify-between font-normal'
 														>
 															{field.value
@@ -259,7 +266,7 @@ export const TaskFormModal = ({
 													}) => (
 														<Input
 															{...timeField}
-															id='task-form-deadline-time'
+															id={deadlineTimeInputId}
 															type='time'
 															required
 															className='w-32'
@@ -296,7 +303,7 @@ export const TaskFormModal = ({
 								Cancel
 							</Button>
 						</DialogClose>
-						<Button type='submit' form='task-form-modal'>
+						<Button type='submit' form={formId}>
 							{submitLabel}
 						</Button>
 					</DialogFooter>
