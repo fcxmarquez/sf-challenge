@@ -6,6 +6,7 @@ import { useTaskFilter, useTasks, useTasksActions, getTaskById } from '@/store';
 import type { Task } from '@/store/types';
 import { useState } from 'react';
 import { TaskDeleteAlert } from '@/components/modals/task-delete-alert';
+import { toast } from 'sonner';
 
 export const TaskContainer = () => {
 	const tasks = useTasks();
@@ -31,14 +32,23 @@ export const TaskContainer = () => {
 		}
 
 		deleteTask(id);
+		toast.success('Task deleted', {
+			description: `"${task.title}" removed from your list`,
+		});
 	};
 
 	const confirmDelete = () => {
 		if (!taskIdToDelete) return;
 
+		const task = getTaskById(taskIdToDelete);
 		deleteTask(taskIdToDelete);
 		setTaskIdToDelete('');
 		setShowConfirmationDialog(false);
+		if (task) {
+			toast.success('Task deleted', {
+				description: `"${task.title}" removed from your list`,
+			});
+		}
 	};
 
 	const handleUndoCompleteTask = (id: string) => {
