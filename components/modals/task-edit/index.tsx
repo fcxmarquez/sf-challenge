@@ -42,22 +42,37 @@ export type TaskEditModalProps = {
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-const formSchema = z.object({
-	title: z.string().min(1, 'Title is required'),
-	description: z.string().min(1, 'Description is required'),
-	deadline: z.date(),
-	deadlineTime: z
-		.string()
-		.min(1, 'Time is required')
-		.regex(timeRegex, 'Invalid time'),
-});
-
 const combineDateAndTime = (date: Date, time: string) => {
 	const [hours = '0', minutes = '0'] = time.split(':');
 	const result = new Date(date);
 	result.setHours(Number(hours), Number(minutes), 0, 0);
 	return result;
 };
+
+const formSchema = z
+	.object({
+		title: z.string().min(1, 'Title is required'),
+		description: z.string().min(1, 'Description is required'),
+		deadline: z.date(),
+		deadlineTime: z
+			.string()
+			.min(1, 'Time is required')
+			.regex(timeRegex, 'Invalid time'),
+	})
+	.superRefine((data, ctx) => {
+		const deadlineWithTime = combineDateAndTime(
+			data.deadline,
+			data.deadlineTime
+		);
+
+		if (deadlineWithTime.getTime() < Date.now()) {
+			ctx.addIssue({
+				code: 'custom',
+				message: 'Deadline cannot be in the past',
+				path: ['deadlineTime'],
+			});
+		}
+	});
 
 export const TaskEditModal = ({
 	open,
