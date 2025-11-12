@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 type TaskItemProps = {
 	id: string;
 	title: string;
-	description: string;
+	description?: string | null;
 	deadline: Date;
 	isCompleted: boolean;
 	onComplete: (id: string) => void;
@@ -36,12 +36,15 @@ export const TaskItem = ({
 	onUndoComplete,
 }: TaskItemProps) => {
 	const formattedDeadline = format(deadline, "d MMMM 'of' yyyy, h:mm a");
+	const displayDescription = description?.trim();
 
 	return (
 		<Item variant={isCompleted ? 'muted' : 'outline'} key={id}>
 			<ItemContent>
 				<ItemTitle>{title}</ItemTitle>
-				<ItemDescription>{description}</ItemDescription>
+				{displayDescription ? (
+					<ItemDescription>{displayDescription}</ItemDescription>
+				) : null}
 			</ItemContent>
 			<ItemActions>
 				<Button

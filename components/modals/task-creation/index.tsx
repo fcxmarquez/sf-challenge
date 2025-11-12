@@ -50,7 +50,7 @@ const combineDateAndTime = (date: Date, time: string) => {
 const formSchema = z
 	.object({
 		title: z.string().min(1, 'Title is required'),
-		description: z.string().min(1, 'Description is required'),
+		description: z.string().transform((value) => value.trim()),
 		deadline: z.date(),
 		deadlineTime: z
 			.string()
@@ -181,7 +181,7 @@ export const TaskCreationModal = ({
 										<FieldContent>
 											<FieldLabel htmlFor='description'>Description</FieldLabel>
 											<FieldDescription>
-												What is the task you want to create?
+												Provide additional details about the task.
 											</FieldDescription>
 										</FieldContent>
 										<Input

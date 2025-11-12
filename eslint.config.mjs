@@ -71,6 +71,12 @@ const eslintConfig = defineConfig([
 		},
 	},
 	{
+		files: ['**/*.{js,cjs,mjs}'],
+		rules: {
+			'@typescript-eslint/no-misused-promises': 'off',
+		},
+	},
+	{
 		files: ['eslint.config.{js,cjs,mjs}'],
 		rules: {
 			'import/no-unresolved': 'off',
