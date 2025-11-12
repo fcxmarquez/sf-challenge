@@ -59,6 +59,14 @@ const eslintConfig = defineConfig([
 	{
 		rules: {
 			'sonarjs/function-return-type': 'off',
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-misused-promises': [
+				'error',
+				{
+					checksVoidReturn: false,
+				},
+			],
 		},
 	},
 	{

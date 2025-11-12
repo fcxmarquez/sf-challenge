@@ -15,6 +15,7 @@ import {
 	FieldSet,
 	FieldContent,
 	FieldDescription,
+	FieldError,
 } from '@/components/ui/field';
 import {
 	Popover,
@@ -23,42 +24,52 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTasksActions } from '@/store';
 import { ChevronDownIcon } from 'lucide-react';
+import * as z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
 
 export type TaskCreationModalProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 };
 
+const formSchema = z.object({
+	title: z.string().min(1, 'Title is required'),
+	description: z.string().min(1, 'Description is required'),
+	deadline: z.date(),
+});
+
 export const TaskCreationModal = ({
 	open,
 	onOpenChange,
 }: TaskCreationModalProps) => {
 	const { createTask } = useTasksActions();
-	const [formData, setFormData] = useState<{
-		title: string;
-		description: string;
-		deadline: Date;
-	}>({
-		title: '',
-		description: '',
-		deadline: new Date(),
+
+	const form = useForm<z.infer<typeof formSchema>>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			title: '',
+			description: '',
+			deadline: new Date(),
+		},
 	});
 	const [openCalendar, setOpenCalendar] = useState(false);
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
+	useEffect(() => {
+		if (!open) {
+			form.reset();
+		}
+	}, [open]);
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const handleSubmit = (data: z.infer<typeof formSchema>) => {
 		createTask({
 			id: crypto.randomUUID(),
-			title: formData.title,
-			description: formData.description,
-			deadline: formData.deadline,
+			title: data.title,
+			description: data.description,
+			deadline: data.deadline,
 			isCompleted: false,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -70,7 +81,7 @@ export const TaskCreationModal = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<form id='task-creation-form' onSubmit={handleSubmit}>
+			<form id='task-creation-form' onSubmit={form.handleSubmit(handleSubmit)}>
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>Create Task</DialogTitle>
@@ -80,78 +91,99 @@ export const TaskCreationModal = ({
 					</DialogHeader>
 					<FieldSet>
 						<FieldGroup>
-							<Field>
-								<FieldContent>
-									<FieldLabel htmlFor='title'>Title</FieldLabel>
-									<FieldDescription>
-										What is the title of the task you want to create?
-									</FieldDescription>
-								</FieldContent>
-								<Input
-									id='title'
-									type='text'
-									placeholder='Task title'
-									name='title'
-									value={formData.title}
-									onChange={handleChange}
-								/>
-							</Field>
-							<Field>
-								<FieldContent>
-									<FieldLabel htmlFor='description'>Description</FieldLabel>
-									<FieldDescription>
-										What is the task you want to create?
-									</FieldDescription>
-								</FieldContent>
-								<Input
-									id='description'
-									type='text'
-									placeholder='Task description'
-									name='description'
-									value={formData.description}
-									onChange={handleChange}
-								/>
-							</Field>
-							<Field>
-								<FieldContent>
-									<FieldLabel htmlFor='deadline'>Deadline</FieldLabel>
-									<FieldDescription>
-										When is the deadline for the task?
-									</FieldDescription>
-								</FieldContent>
-								<Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-									<PopoverTrigger asChild>
-										<Button
-											variant='outline'
-											id='deadline'
-											className='w-48 justify-between font-normal'
-										>
-											{formData.deadline
-												? formData.deadline.toLocaleDateString()
-												: 'Select date'}
-											<ChevronDownIcon />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent
-										className='w-auto overflow-hidden p-0'
-										align='start'
-									>
-										<Calendar
-											mode='single'
-											selected={formData.deadline}
-											captionLayout='dropdown'
-											disabled={{ before: new Date() }}
-											onSelect={(date) => {
-												setFormData({
-													...formData,
-													deadline: date ?? new Date(),
-												});
-												setOpenCalendar(false);
-											}}
+							<Controller
+								control={form.control}
+								name='title'
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldContent>
+											<FieldLabel htmlFor='title'>Title</FieldLabel>
+											<FieldDescription>
+												What is the title of the task you want to create?
+											</FieldDescription>
+										</FieldContent>
+										<Input
+											{...field}
+											id='title'
+											type='text'
+											placeholder='Task title'
 										/>
-									</PopoverContent>
-								</Popover>
-							</Field>
+										{fieldState.invalid ? (
+											<FieldError errors={[fieldState.error]} />
+										) : null}
+									</Field>
+								)}
+							/>
+
+							<Controller
+								control={form.control}
+								name='description'
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldContent>
+											<FieldLabel htmlFor='description'>Description</FieldLabel>
+											<FieldDescription>
+												What is the task you want to create?
+											</FieldDescription>
+										</FieldContent>
+										<Input
+											{...field}
+											id='description'
+											type='text'
+											placeholder='Task description'
+										/>
+										{fieldState.invalid ? (
+											<FieldError errors={[fieldState.error]} />
+										) : null}
+									</Field>
+								)}
+							/>
+
+							<Controller
+								control={form.control}
+								name='deadline'
+								render={({ field, fieldState }) => (
+									<Field data-invalid={fieldState.invalid}>
+										<FieldContent>
+											<FieldLabel htmlFor='deadline'>Deadline</FieldLabel>
+											<FieldDescription>
+												When is the deadline for the task?
+											</FieldDescription>
+										</FieldContent>
+										<Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+											<PopoverTrigger asChild>
+												<Button
+													variant='outline'
+													id='deadline'
+													className='w-48 justify-between font-normal'
+												>
+													{field.value
+														? field.value.toLocaleDateString()
+														: 'Select date'}
+													<ChevronDownIcon />
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent
+												className='w-auto overflow-hidden p-0'
+												align='start'
+											>
+												<Calendar
+													mode='single'
+													selected={field.value}
+													captionLayout='dropdown'
+													disabled={{ before: new Date() }}
+													onSelect={(date) => {
+														field.onChange(date ?? new Date());
+													}}
+												/>
+											</PopoverContent>
+										</Popover>
+										{fieldState.invalid ? (
+											<FieldError errors={[fieldState.error]} />
+										) : null}
+									</Field>
+								)}
+							/>
 						</FieldGroup>
 					</FieldSet>
 					<DialogFooter>
