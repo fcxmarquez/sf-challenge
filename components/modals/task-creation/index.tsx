@@ -13,13 +13,26 @@ export type TaskCreationModalProps = {
 	onOpenChange: (open: boolean) => void;
 };
 
-const getDefaultFormValues = (): TaskFormValues => {
+const getInitialDeadline = (): Date => {
 	const now = new Date();
+	const next = new Date(now);
+	next.setSeconds(0, 0);
+	next.setMinutes(15);
+
+	if (next <= now) {
+		next.setHours(next.getHours() + 1, 15, 0, 0);
+	}
+
+	return next;
+};
+
+const getDefaultFormValues = (): TaskFormValues => {
+	const defaultDeadline = getInitialDeadline();
 	return {
 		title: '',
 		description: '',
-		deadline: now,
-		deadlineTime: format(now, 'HH:mm'),
+		deadline: defaultDeadline,
+		deadlineTime: format(defaultDeadline, 'HH:mm'),
 	};
 };
 
