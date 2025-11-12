@@ -32,6 +32,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { format } from 'date-fns';
 
 export type TaskEditModalProps = {
 	open: boolean;
@@ -39,11 +40,24 @@ export type TaskEditModalProps = {
 	task?: Task | null;
 };
 
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
 const formSchema = z.object({
 	title: z.string().min(1, 'Title is required'),
 	description: z.string().min(1, 'Description is required'),
 	deadline: z.date(),
+	deadlineTime: z
+		.string()
+		.min(1, 'Time is required')
+		.regex(timeRegex, 'Invalid time'),
 });
+
+const combineDateAndTime = (date: Date, time: string) => {
+	const [hours = '0', minutes = '0'] = time.split(':');
+	const result = new Date(date);
+	result.setHours(Number(hours), Number(minutes), 0, 0);
+	return result;
+};
 
 export const TaskEditModal = ({
 	open,
@@ -57,6 +71,7 @@ export const TaskEditModal = ({
 			title: task?.title ?? '',
 			description: task?.description ?? '',
 			deadline: task?.deadline ?? new Date(),
+			deadlineTime: format(task?.deadline ?? new Date(), 'HH:mm'),
 		},
 	});
 	const [openCalendar, setOpenCalendar] = useState(false);
@@ -67,21 +82,30 @@ export const TaskEditModal = ({
 				title: task.title,
 				description: task.description,
 				deadline: task.deadline,
+				deadlineTime: format(task.deadline, 'HH:mm'),
 			});
 		}
-	}, [task]);
+	}, [open, task, form]);
 
 	const handleSubmit = (data: z.infer<typeof formSchema>) => {
 		if (!task) return;
 
+		const deadlineWithTime = combineDateAndTime(
+			data.deadline,
+			data.deadlineTime
+		);
+
 		updateTask(task.id, {
 			title: data.title,
 			description: data.description,
-			deadline: data.deadline,
+			deadline: deadlineWithTime,
 		});
 
 		toast.success('Task updated', {
-			description: `"${data.title}" due ${data.deadline.toLocaleDateString()}`,
+			description: `"${data.title}" due ${format(
+				deadlineWithTime,
+				"d MMMM yyyy',' h:mm a"
+			)}`,
 		});
 
 		onOpenChange(false);
@@ -152,47 +176,97 @@ export const TaskEditModal = ({
 							<Controller
 								control={form.control}
 								name='deadline'
-								render={({ field, fieldState }) => (
-									<Field data-invalid={fieldState.invalid}>
-										<FieldContent>
-											<FieldLabel htmlFor='edit-deadline'>Deadline</FieldLabel>
-											<FieldDescription>
-												Adjust the deadline for the task.
-											</FieldDescription>
-										</FieldContent>
-										<Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-											<PopoverTrigger asChild>
-												<Button
-													variant='outline'
-													id='edit-deadline'
-													className='w-48 justify-between font-normal'
+								render={({ field, fieldState }) => {
+									const deadlineTimeError = form.formState.errors.deadlineTime;
+
+									return (
+										<Field
+											data-invalid={
+												fieldState.invalid || Boolean(deadlineTimeError)
+											}
+										>
+											<FieldContent>
+												<FieldLabel htmlFor='edit-deadline'>
+													Deadline
+												</FieldLabel>
+												<FieldDescription>
+													Adjust the deadline for the task.
+												</FieldDescription>
+											</FieldContent>
+											<div className='flex items-center gap-2'>
+												<Popover
+													open={openCalendar}
+													onOpenChange={setOpenCalendar}
 												>
-													{field.value
-														? field.value.toLocaleDateString()
-														: 'Select date'}
-													<ChevronDownIcon />
-												</Button>
-											</PopoverTrigger>
-											<PopoverContent
-												className='w-auto overflow-hidden p-0'
-												align='start'
-											>
-												<Calendar
-													mode='single'
-													selected={field.value}
-													captionLayout='dropdown'
-													disabled={{ before: new Date() }}
-													onSelect={(date) => {
-														field.onChange(date ?? new Date());
-													}}
+													<PopoverTrigger asChild>
+														<Button
+															variant='outline'
+															id='edit-deadline'
+															className='w-48 justify-between font-normal'
+														>
+															{field.value
+																? format(field.value, "d MMMM 'of' yyyy")
+																: 'Select date'}
+															<ChevronDownIcon />
+														</Button>
+													</PopoverTrigger>
+													<PopoverContent
+														className='w-auto overflow-hidden p-0'
+														align='start'
+													>
+														<Calendar
+															mode='single'
+															selected={field.value}
+															captionLayout='dropdown'
+															disabled={{ before: new Date() }}
+															onSelect={(date) => {
+																if (!date) return;
+																const nextDate = combineDateAndTime(
+																	date,
+																	form.getValues('deadlineTime')
+																);
+																field.onChange(nextDate);
+															}}
+														/>
+													</PopoverContent>
+												</Popover>
+												<Controller
+													control={form.control}
+													name='deadlineTime'
+													render={({
+														field: timeField,
+														fieldState: timeState,
+													}) => (
+														<Input
+															{...timeField}
+															id='edit-deadline-time'
+															type='time'
+															required
+															className='w-32'
+															data-invalid={timeState.invalid}
+															onChange={(event) => {
+																const value = event.target.value;
+																timeField.onChange(value);
+																const currentDate = field.value ?? new Date();
+																const nextDate = combineDateAndTime(
+																	currentDate,
+																	value
+																);
+																field.onChange(nextDate);
+															}}
+														/>
+													)}
 												/>
-											</PopoverContent>
-										</Popover>
-										{fieldState.invalid ? (
-											<FieldError errors={[fieldState.error]} />
-										) : null}
-									</Field>
-								)}
+											</div>
+											{fieldState.invalid ? (
+												<FieldError errors={[fieldState.error]} />
+											) : null}
+											{deadlineTimeError ? (
+												<FieldError errors={[deadlineTimeError]} />
+											) : null}
+										</Field>
+									);
+								}}
 							/>
 						</FieldGroup>
 					</FieldSet>

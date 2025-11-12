@@ -35,7 +35,7 @@ export const TaskItem = ({
 	onDelete,
 	onUndoComplete,
 }: TaskItemProps) => {
-	const formattedDeadline = format(deadline, "d MMMM 'of' yyyy");
+	const formattedDeadline = format(deadline, "d MMMM 'of' yyyy, h:mm a");
 
 	return (
 		<Item variant={isCompleted ? 'muted' : 'outline'} key={id}>
