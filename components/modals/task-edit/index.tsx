@@ -3,39 +3,40 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogFooter,
 	DialogClose,
 } from '@/components/ui/dialog';
 import {
 	Field,
-	FieldGroup,
-	FieldLabel,
-	FieldSet,
 	FieldContent,
 	FieldDescription,
 	FieldError,
+	FieldGroup,
+	FieldLabel,
+	FieldSet,
 } from '@/components/ui/field';
 import {
 	Popover,
-	PopoverTrigger,
 	PopoverContent,
+	PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTasksActions } from '@/store';
+import { Task } from '@/store/types';
 import { ChevronDownIcon } from 'lucide-react';
-import * as z from 'zod';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
+import * as z from 'zod';
 
-export type TaskCreationModalProps = {
+export type TaskEditModalProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	task?: Task | null;
 };
 
 const formSchema = z.object({
@@ -44,44 +45,43 @@ const formSchema = z.object({
 	deadline: z.date(),
 });
 
-export const TaskCreationModal = ({
+export const TaskEditModal = ({
 	open,
 	onOpenChange,
-}: TaskCreationModalProps) => {
-	const { createTask } = useTasksActions();
+	task,
+}: TaskEditModalProps) => {
+	const { updateTask } = useTasksActions();
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			title: '',
-			description: '',
-			deadline: new Date(),
+			title: task?.title ?? '',
+			description: task?.description ?? '',
+			deadline: task?.deadline ?? new Date(),
 		},
 	});
 	const [openCalendar, setOpenCalendar] = useState(false);
 
 	useEffect(() => {
-		if (!open) {
-			form.reset();
+		if (open && task) {
+			form.reset({
+				title: task.title,
+				description: task.description,
+				deadline: task.deadline,
+			});
 		}
-	}, [open]);
+	}, [task]);
 
 	const handleSubmit = (data: z.infer<typeof formSchema>) => {
-		createTask({
-			id: crypto.randomUUID(),
+		if (!task) return;
+
+		updateTask(task.id, {
 			title: data.title,
 			description: data.description,
 			deadline: data.deadline,
-			isCompleted: false,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			completedAt: null,
 		});
 
-		toast.error('Task created', {
-			description: `"${data.title}" due ${format(
-				data.deadline,
-				"d MMMM 'of' yyyy"
-			)}`,
+		toast.success('Task updated', {
+			description: `"${data.title}" due ${data.deadline.toLocaleDateString()}`,
 		});
 
 		onOpenChange(false);
@@ -89,12 +89,12 @@ export const TaskCreationModal = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<form id='task-creation-form' onSubmit={form.handleSubmit(handleSubmit)}>
+			<form id='task-edit-form' onSubmit={form.handleSubmit(handleSubmit)}>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>Create Task</DialogTitle>
+						<DialogTitle>Edit Task</DialogTitle>
 						<DialogDescription>
-							Create a new task to help you manage your time.
+							Update the details of your task to keep everything on track.
 						</DialogDescription>
 					</DialogHeader>
 					<FieldSet>
@@ -105,14 +105,14 @@ export const TaskCreationModal = ({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldContent>
-											<FieldLabel htmlFor='title'>Title</FieldLabel>
+											<FieldLabel htmlFor='edit-title'>Title</FieldLabel>
 											<FieldDescription>
-												What is the title of the task you want to create?
+												Update the title of your task.
 											</FieldDescription>
 										</FieldContent>
 										<Input
 											{...field}
-											id='title'
+											id='edit-title'
 											type='text'
 											placeholder='Task title'
 										/>
@@ -129,14 +129,16 @@ export const TaskCreationModal = ({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldContent>
-											<FieldLabel htmlFor='description'>Description</FieldLabel>
+											<FieldLabel htmlFor='edit-description'>
+												Description
+											</FieldLabel>
 											<FieldDescription>
-												What is the task you want to create?
+												Modify the description of your task.
 											</FieldDescription>
 										</FieldContent>
 										<Input
 											{...field}
-											id='description'
+											id='edit-description'
 											type='text'
 											placeholder='Task description'
 										/>
@@ -153,20 +155,20 @@ export const TaskCreationModal = ({
 								render={({ field, fieldState }) => (
 									<Field data-invalid={fieldState.invalid}>
 										<FieldContent>
-											<FieldLabel htmlFor='deadline'>Deadline</FieldLabel>
+											<FieldLabel htmlFor='edit-deadline'>Deadline</FieldLabel>
 											<FieldDescription>
-												When is the deadline for the task?
+												Adjust the deadline for the task.
 											</FieldDescription>
 										</FieldContent>
 										<Popover open={openCalendar} onOpenChange={setOpenCalendar}>
 											<PopoverTrigger asChild>
 												<Button
 													variant='outline'
-													id='deadline'
+													id='edit-deadline'
 													className='w-48 justify-between font-normal'
 												>
 													{field.value
-														? format(field.value, "d MMMM 'of' yyyy")
+														? field.value.toLocaleDateString()
 														: 'Select date'}
 													<ChevronDownIcon />
 												</Button>
@@ -200,8 +202,8 @@ export const TaskCreationModal = ({
 								Cancel
 							</Button>
 						</DialogClose>
-						<Button type='submit' form='task-creation-form'>
-							Create
+						<Button type='submit' form='task-edit-form'>
+							Save changes
 						</Button>
 					</DialogFooter>
 				</DialogContent>

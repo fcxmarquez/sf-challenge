@@ -11,7 +11,7 @@ export const createTaskSlice: StateCreator<
 	[],
 	TaskSlice
 > = (set) => ({
-	tasks: [] as Task[],
+	tasks: [],
 	taskFilter: 'all',
 
 	setTaskFilter: (filter: 'all' | 'completed' | 'pending') =>
@@ -27,6 +27,22 @@ export const createTaskSlice: StateCreator<
 	deleteTask: (id: string) =>
 		set((state) => {
 			const newTasks = state.tasks.filter((task) => task.id !== id);
+			return {
+				tasks: newTasks,
+			};
+		}),
+
+	updateTask: (id, updatedTask) =>
+		set((state) => {
+			const newTasks = state.tasks.map((task) =>
+				task.id === id
+					? {
+							...task,
+							...updatedTask,
+							updatedAt: new Date(),
+						}
+					: task
+			);
 			return {
 				tasks: newTasks,
 			};

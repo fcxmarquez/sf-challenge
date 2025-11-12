@@ -16,6 +16,10 @@ export interface TaskSlice {
 	setTaskFilter: (filter: 'all' | 'completed' | 'pending') => void;
 	createTask: (task: Task) => void;
 	deleteTask: (id: string) => void;
+	updateTask: (
+		id: string,
+		task: Pick<Task, 'title' | 'description' | 'deadline'>
+	) => void;
 	completeTask: (id: string) => void;
 	undoCompleteTask: (id: string) => void;
 }

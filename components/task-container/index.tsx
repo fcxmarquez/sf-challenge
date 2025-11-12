@@ -1,6 +1,7 @@
 'use client';
 
 import { TaskItem } from '@/components/task-item';
+import { TaskEditModal } from '@/components/modals/task-edit';
 import { useTaskFilter, useTasks, useTasksActions, getTaskById } from '@/store';
 import { useState } from 'react';
 import { TaskDeleteAlert } from '@/components/modals/task-delete-alert';
@@ -11,6 +12,8 @@ export const TaskContainer = () => {
 	const { completeTask, deleteTask, undoCompleteTask } = useTasksActions();
 	const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
 	const [taskIdToDelete, setTaskIdToDelete] = useState<string>('');
+	const [taskIdToEdit, setTaskIdToEdit] = useState<string>('');
+	const [showEditDialog, setShowEditDialog] = useState(false);
 
 	const handleCompleteTask = (id: string) => {
 		completeTask(id);
@@ -42,8 +45,19 @@ export const TaskContainer = () => {
 	};
 
 	const handleEditTask = (id: string) => {
-		console.log('edit task', id);
+		setTaskIdToEdit(id);
+		setShowEditDialog(true);
 	};
+
+	const handleEditModalChange = (open: boolean) => {
+		setShowEditDialog(open);
+
+		if (!open) {
+			setTaskIdToEdit('');
+		}
+	};
+
+	const taskToEdit = taskIdToEdit ? getTaskById(taskIdToEdit) : undefined;
 
 	const orderedTasks = tasks
 		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
@@ -74,6 +88,11 @@ export const TaskContainer = () => {
 				open={showConfirmationDialog}
 				onOpenChange={setShowConfirmationDialog}
 				onConfirm={confirmDelete}
+			/>
+			<TaskEditModal
+				open={showEditDialog}
+				onOpenChange={handleEditModalChange}
+				task={taskToEdit}
 			/>
 			<div className='flex flex-col gap-4 w-full'>
 				{filteredTasks.map((task) => (
