@@ -3,6 +3,7 @@
 import { TaskItem } from '@/components/task-item';
 import { TaskEditModal } from '@/components/modals/task-edit';
 import { useTaskFilter, useTasks, useTasksActions, getTaskById } from '@/store';
+import type { Task } from '@/store/types';
 import { useState } from 'react';
 import { TaskDeleteAlert } from '@/components/modals/task-delete-alert';
 
@@ -59,13 +60,22 @@ export const TaskContainer = () => {
 
 	const taskToEdit = taskIdToEdit ? getTaskById(taskIdToEdit) : undefined;
 
-	const orderedTasks = tasks
-		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-		.toSorted((a, b) => {
-			if (a.isCompleted && !b.isCompleted) return 1;
-			if (!a.isCompleted && b.isCompleted) return -1;
-			return 0;
-		});
+	const sortTasksByDeadline = (a: Task, b: Task) => {
+		const deadlineDiff = a.deadline.getTime() - b.deadline.getTime();
+		if (deadlineDiff !== 0) return deadlineDiff;
+
+		return a.createdAt.getTime() - b.createdAt.getTime();
+	};
+
+	const pendingTasks = tasks
+		.filter((task) => !task.isCompleted)
+		.toSorted(sortTasksByDeadline);
+
+	const completedTasks = tasks
+		.filter((task) => task.isCompleted)
+		.toSorted(sortTasksByDeadline);
+
+	const orderedTasks = [...pendingTasks, ...completedTasks];
 
 	const filteredTasks = orderedTasks.filter((task) => {
 		if (taskFilter === 'all') return true;
