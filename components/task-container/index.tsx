@@ -1,39 +1,49 @@
 'use client';
 
-import { useCallback } from 'react';
-
 import { TaskItem } from '@/components/task-item';
-import { useTaskFilter, useTasks, useTasksActions } from '@/store';
+import { useTaskFilter, useTasks, useTasksActions, getTaskById } from '@/store';
+import { useState } from 'react';
+import { TaskDeleteAlert } from '@/components/modals/task-delete-alert';
 
 export const TaskContainer = () => {
 	const tasks = useTasks();
 	const taskFilter = useTaskFilter();
 	const { completeTask, deleteTask, undoCompleteTask } = useTasksActions();
+	const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
+	const [taskIdToDelete, setTaskIdToDelete] = useState<string>('');
 
-	const handleCompleteTask = useCallback(
-		(id: string) => {
-			completeTask(id);
-		},
-		[completeTask]
-	);
+	const handleCompleteTask = (id: string) => {
+		completeTask(id);
+	};
 
-	const handleDeleteTask = useCallback(
-		(id: string) => {
-			deleteTask(id);
-		},
-		[deleteTask]
-	);
+	const handleDeleteTask = (id: string) => {
+		const task = getTaskById(id);
+		if (!task) return;
 
-	const handleUndoCompleteTask = useCallback(
-		(id: string) => {
-			undoCompleteTask(id);
-		},
-		[undoCompleteTask]
-	);
+		if (!task.isCompleted) {
+			setTaskIdToDelete(id);
+			setShowConfirmationDialog(true);
+			return;
+		}
 
-	const handleEditTask = useCallback((id: string) => {
+		deleteTask(id);
+	};
+
+	const confirmDelete = () => {
+		if (!taskIdToDelete) return;
+
+		deleteTask(taskIdToDelete);
+		setTaskIdToDelete('');
+		setShowConfirmationDialog(false);
+	};
+
+	const handleUndoCompleteTask = (id: string) => {
+		undoCompleteTask(id);
+	};
+
+	const handleEditTask = (id: string) => {
 		console.log('edit task', id);
-	}, []);
+	};
 
 	const orderedTasks = tasks
 		.toSorted((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
@@ -59,21 +69,28 @@ export const TaskContainer = () => {
 	}
 
 	return (
-		<div className='flex flex-col gap-4 w-full'>
-			{filteredTasks.map((task) => (
-				<TaskItem
-					key={task.id}
-					id={task.id}
-					title={task.title}
-					description={task.description}
-					deadline={task.deadline}
-					isCompleted={task.isCompleted}
-					onComplete={handleCompleteTask}
-					onEdit={handleEditTask}
-					onDelete={handleDeleteTask}
-					onUndoComplete={handleUndoCompleteTask}
-				/>
-			))}
-		</div>
+		<>
+			<TaskDeleteAlert
+				open={showConfirmationDialog}
+				onOpenChange={setShowConfirmationDialog}
+				onConfirm={confirmDelete}
+			/>
+			<div className='flex flex-col gap-4 w-full'>
+				{filteredTasks.map((task) => (
+					<TaskItem
+						key={task.id}
+						id={task.id}
+						title={task.title}
+						description={task.description}
+						deadline={task.deadline}
+						isCompleted={task.isCompleted}
+						onComplete={handleCompleteTask}
+						onEdit={handleEditTask}
+						onDelete={handleDeleteTask}
+						onUndoComplete={handleUndoCompleteTask}
+					/>
+				))}
+			</div>
+		</>
 	);
 };

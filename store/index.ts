@@ -36,8 +36,8 @@ export const useStore = create<StoreState>()(
 // selector hooks
 export const useTasks = () => useStore((state) => state.tasks);
 export const useTaskFilter = () => useStore((state) => state.taskFilter);
-
-console.log('state', useStore.getState());
+export const getTaskById = (id: string) =>
+	useStore.getState().tasks.find((task) => task.id === id);
 
 export const useTasksActions = () => {
 	const createTask = useStore((state) => state.createTask);
