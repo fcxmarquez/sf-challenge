@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/item';
 import { Button } from '@/components/ui/button';
 import { PencilIcon, TrashIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 type TaskItemProps = {
 	id: string;
@@ -34,6 +35,8 @@ export const TaskItem = ({
 	onDelete,
 	onUndoComplete,
 }: TaskItemProps) => {
+	const formattedDeadline = format(deadline, "d MMMM 'of' yyyy");
+
 	return (
 		<Item variant={isCompleted ? 'muted' : 'outline'} key={id}>
 			<ItemContent>
@@ -54,7 +57,7 @@ export const TaskItem = ({
 					<TrashIcon className='size-4' />
 				</Button>
 			</ItemActions>
-			<ItemFooter>Deadline: {deadline.toLocaleDateString()}</ItemFooter>
+			<ItemFooter>Deadline: {formattedDeadline}</ItemFooter>
 		</Item>
 	);
 };

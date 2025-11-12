@@ -42,6 +42,7 @@ export const getTaskById = (id: string) =>
 export const useTasksActions = () => {
 	const createTask = useStore((state) => state.createTask);
 	const deleteTask = useStore((state) => state.deleteTask);
+	const updateTask = useStore((state) => state.updateTask);
 	const completeTask = useStore((state) => state.completeTask);
 	const undoCompleteTask = useStore((state) => state.undoCompleteTask);
 	const setTaskFilter = useStore((state) => state.setTaskFilter);
@@ -49,6 +50,7 @@ export const useTasksActions = () => {
 	return {
 		createTask,
 		deleteTask,
+		updateTask,
 		completeTask,
 		undoCompleteTask,
 		setTaskFilter,
