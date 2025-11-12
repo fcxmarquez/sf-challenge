@@ -30,6 +30,7 @@ import { ChevronDownIcon } from 'lucide-react';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { toast } from 'sonner';
 
 export type TaskCreationModalProps = {
 	open: boolean;
@@ -47,7 +48,6 @@ export const TaskCreationModal = ({
 	onOpenChange,
 }: TaskCreationModalProps) => {
 	const { createTask } = useTasksActions();
-
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -74,6 +74,10 @@ export const TaskCreationModal = ({
 			createdAt: new Date(),
 			updatedAt: new Date(),
 			completedAt: null,
+		});
+
+		toast.error('Task created', {
+			description: `"${data.title}" due ${data.deadline.toLocaleDateString()}`,
 		});
 
 		onOpenChange(false);
