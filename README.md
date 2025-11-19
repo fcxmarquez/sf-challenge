@@ -13,3 +13,5 @@ For this project, I used the following stack and libraries:
 - Zustand for state management. While a state management library might be excessive for this project's scope, Zustand's persistence middleware makes it an ideal choice for meeting the project's requirements using the middleware persist for local storage persistence.
 
 I hope you enjoy the project! I'm looking forward to your feedback and continuing with the process!
+
+Note: If you're seeing this, you're part of the dev branch, which is intended to be used for my own fun development process and is not intended to be used as part of the evaluation.
