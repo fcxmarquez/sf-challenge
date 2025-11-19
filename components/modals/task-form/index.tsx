@@ -30,6 +30,10 @@ import { ChevronDownIcon } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as z from 'zod';
+import type {
+	TaskFormModalProps,
+	TaskFormValues,
+} from './types';
 
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
@@ -65,30 +69,6 @@ const formSchema = z
 		}
 	});
 
-export type TaskFormValues = z.infer<typeof formSchema>;
-
-export type TaskFormModalSubmitPayload = Pick<
-	TaskFormValues,
-	'title' | 'description'
-> & {
-	deadline: Date;
-};
-
-export type TaskFormModalProps = {
-	open: boolean;
-	onOpenChange: (open: boolean) => void;
-	dialogTitle: string;
-	dialogDescription: string;
-	submitLabel: string;
-	fieldCopy?: {
-		title?: string;
-		description?: string;
-		deadline?: string;
-	};
-	defaultValues: TaskFormValues;
-	onSubmit: (values: TaskFormModalSubmitPayload) => void;
-};
-
 const defaultFieldCopy = {
 	title: 'Update the title of your task.',
 	description: 'Modify the description of your task (optional).',
@@ -116,7 +96,7 @@ export const TaskFormModal = ({
 	const descriptionInputId = `${formId}-description`;
 	const deadlineInputId = `${formId}-deadline`;
 	const deadlineTimeInputId = `${formId}-deadline-time`;
-  
+
 	const form = useForm<TaskFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues,

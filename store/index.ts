@@ -12,6 +12,7 @@ const DATE_KEYS = new Set([
 	'completedAt',
 ]);
 
+// Revive data keys is to avoid the date object being serialized as a string when we require a Date type
 const reviveDateKeys = (key: string, value: unknown) => {
 	if (DATE_KEYS.has(key) && typeof value === 'string') {
 		return new Date(value);
